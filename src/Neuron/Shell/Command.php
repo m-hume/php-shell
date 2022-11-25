@@ -55,6 +55,11 @@ class Command
     protected $pipes = [];
 
     /**
+     * @var string
+     */
+    protected $redirect = '';
+
+    /**
      * Command constructor
      *
      * @param $cmd
@@ -121,11 +126,12 @@ class Command
      *
      * @param $key
      * @param null $value
+     * @param bool $no_escape
      * @return $this
      */
-    public function addShortFlag($key, $value = null)
+    public function addShortFlag($key, $value = null, $no_escape = false)
     {
-        $escaped = is_null($value) ? $value : escapeshellarg($value);
+        $escaped = is_null($value) ? $value : ($no_escape ? $value : escapeshellarg($value));
 
         $this->shortFlags[$key] = $escaped;
 
@@ -152,11 +158,12 @@ class Command
      *
      * @param $key
      * @param null $value
+		 * @param bool $no_escape
      * @return $this
      */
-    public function addLongFlag($key, $value = null)
+    public function addLongFlag($key, $value = null, $no_escape = false)
     {
-        $escaped = is_null($value) ? $value : escapeshellarg($value);
+        $escaped = is_null($value) ? $value : ($no_escape ? $value : escapeshellarg($value));
 
         $this->longFlags[$key] = $escaped;
 
@@ -248,6 +255,27 @@ class Command
     public function getPipes()
     {
         return $this->pipes;
+    }
+
+    /**
+     * Redirects current command to a file
+     *
+     * @param String $file
+     * @return $this
+     */
+    public function redirect($file)
+    {
+        $this->redirect = escapeshellarg($file);
+
+        $this->cmdString .= " > {$this->redirect}";
+
+        return $this;
+    }
+
+
+    public function getRedirect()
+    {
+        return $this->redirect;
     }
 
     /**
